@@ -1,6 +1,6 @@
 {
 	"name": "@pieterjanmaes/oxc-config",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Shared oxlint, oxfmt and ESLint configuration for Nuxt 4 projects",
 	"author": "Pieterjan Maes",
 	"license": "MIT",

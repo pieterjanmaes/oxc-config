@@ -81,6 +81,8 @@ export function eslintConfigs({ ignores = [], rules = {}, vueRules = {}, oxlint 
 				// oxfmt keeps short element content on one line (`<h3>Title</h3>`); this
 				// rule demands a break around it, so oxfmt would just undo every fix.
 				'vue/singleline-html-element-content-newline': 'off',
+				// Optional props typed `?: T` already default to undefined; an explicit default is noise.
+				'vue/require-default-prop': 'off',
 				...vueRules
 			}
 		},

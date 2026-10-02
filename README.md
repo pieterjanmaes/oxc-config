@@ -80,7 +80,7 @@ The shared `ignorePatterns` already skip `package.json`, lockfiles and `*.md` (o
 
 ## ESLint
 
-ESLint still owns the stylistic rules (script indentation, attribute line breaks, attribute casing) that oxlint does not have. Template indentation is left to oxfmt: `vue/html-indent` is off because it rejects how oxfmt wraps inline elements with text content. `eslint.config.mjs`:
+ESLint still owns the stylistic rules (script indentation, attribute line breaks, attribute casing) that oxlint does not have. Template indentation is left to oxfmt: `vue/html-indent` is off because it rejects how oxfmt wraps inline elements with text content. `vue/require-default-prop` is off too: optional props typed `?: T` already default to `undefined`. `eslint.config.mjs`:
 
 ```js
 import withNuxt from './.nuxt/eslint.config.mjs';
