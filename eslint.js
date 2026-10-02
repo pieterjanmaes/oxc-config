@@ -58,7 +58,10 @@ export function eslintConfigs({ ignores = [], rules = {}, vueRules = {}, oxlint 
 			files: ['**/*.vue'],
 			rules: {
 				'vue/script-indent': ['error', 'tab', { baseIndent: 1, switchCase: 1 }],
-				'vue/html-indent': ['error', 'tab'],
+				// oxfmt breaks a start tag's `>` onto its own line at attribute depth when the
+				// following whitespace is significant (`<a ...\n\t>text</a\n>`), so the bracket
+				// of a start or self-closing tag is expected one level deeper than the element.
+				'vue/html-indent': ['error', 'tab', { closeBracket: { startTag: 1, endTag: 0, selfClosingTag: 1 } }],
 				indent: 'off',
 				// oxfmt (printWidth 120, singleAttributePerLine) owns attribute wrapping;
 				// this rule would fight it.
