@@ -1,0 +1,104 @@
+# @pieterjanmaes/oxc-config
+
+Shared [oxlint](https://oxc.rs/docs/guide/usage/linter.html), [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) and ESLint configuration for the Nuxt 4 projects. The rules live here once; every project installs the package and passes only what differs.
+
+The package ships plain `.js` with `.d.ts` beside it. Node does not strip types from files inside `node_modules`, so raw `.ts` sources would not load from a shared package.
+
+## Install
+
+```sh
+npm i -D github:pieterjanmaes/oxc-config
+# or
+pnpm add -D github:pieterjanmaes/oxc-config
+```
+
+Peer dependencies the project already has: `oxlint`, `oxfmt`, `oxc-nuxt`, and for the ESLint part `eslint`, `@nuxt/eslint`, `@nuxt/eslint-plugin`, `eslint-plugin-jsonc`, `eslint-plugin-oxlint`.
+
+The TypeScript config files need Node 22.18 or newer (native type stripping). Pin that in `engines` and on CI.
+
+## oxlint
+
+`oxlint.config.ts` (delete `.oxlintrc.json` if present; the two cannot coexist):
+
+```ts
+import { withNuxt } from './.nuxt/oxlint.mjs';
+import { oxlintConfig } from '@pieterjanmaes/oxc-config/oxlint';
+
+export default withNuxt(
+	oxlintConfig({
+		// everything here is optional
+		ignorePatterns: ['**/_source'],
+		rules: {
+			'no-console': 'warn'
+		}
+	})
+);
+```
+
+`withNuxt()` comes from the `oxc-nuxt` module and injects the Nuxt auto-import globals plus the default plugin set, so it must stay in the project (it needs `nuxt prepare` to have run).
+
+`oxlintConfig()` merges your overrides into the shared base:
+
+| Key                                         | Merge strategy |
+| ------------------------------------------- | -------------- |
+| `ignorePatterns`, `overrides`, `jsPlugins`  | appended       |
+| `rules`, `env`, `categories`, `globals`, `settings` | shallow-merged, yours win |
+| anything else                               | replaces       |
+
+oxlint's own `extends` only merges `rules`, `plugins` and `overrides`, which is why the helper exists. If you prefer the built-in mechanism, `base` is exported too: `defineConfig({ extends: [base] })`.
+
+## oxfmt
+
+`oxfmt.config.ts` (delete `.oxfmtrc.json`; the two cannot coexist):
+
+```ts
+import { oxfmtConfig } from '@pieterjanmaes/oxc-config/oxfmt';
+
+export default oxfmtConfig({
+	ignorePatterns: ['server/db/migrations']
+});
+```
+
+Or, with nothing project-specific:
+
+```ts
+export { default } from '@pieterjanmaes/oxc-config/oxfmt';
+```
+
+oxfmt has no `extends`. `oxfmtConfig()` appends `ignorePatterns` and `overrides` and lets every other key replace the base value.
+
+The shared `ignorePatterns` already skip `package.json`, lockfiles and `*.md` (oxfmt's markdown formatter corrupts Nuxt Content MDC syntax), so `.oxfmtignore` and the `--ignore-path` flag can go:
+
+```json
+{
+	"format": "oxfmt",
+	"format:check": "oxfmt --check"
+}
+```
+
+## ESLint
+
+ESLint still owns the stylistic rules (indentation, attribute line breaks) that oxlint does not have. `eslint.config.mjs`:
+
+```js
+import withNuxt from './.nuxt/eslint.config.mjs';
+import { eslintConfigs } from '@pieterjanmaes/oxc-config/eslint';
+
+export default withNuxt(
+	...eslintConfigs({
+		ignores: ['_source/**'],
+		rules: { 'link-checker/valid-sitemap-link': 'off' },
+		vueRules: {}
+	})
+);
+```
+
+## Updating rules
+
+Change the rule here, bump `version` in `package.json`, push, then in each project:
+
+```sh
+npm update @pieterjanmaes/oxc-config
+```
+
+Pin to a tag or commit for reproducible installs: `github:pieterjanmaes/oxc-config#v0.1.0`.
