@@ -58,7 +58,10 @@ export function eslintConfigs({ ignores = [], rules = {}, vueRules = {}, oxlint 
 			files: ['**/*.vue'],
 			rules: {
 				'vue/script-indent': ['error', 'tab', { baseIndent: 1, switchCase: 1 }],
-				'vue/html-indent': ['error', 'tab'],
+				// oxfmt owns template indentation. For inline elements with text content it writes
+				// `>{{ text }}</NuxtLink` one level deeper than the start tag, which this rule rejects,
+				// and no option of the rule accepts that without breaking block elements.
+				'vue/html-indent': 'off',
 				indent: 'off',
 				// oxfmt (printWidth 120, singleAttributePerLine) owns attribute wrapping;
 				// this rule would fight it.
